@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vigenere Cipher Tools</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>🔐 Vigenere Cipher Tools</h1>
+
+  <!-- Pilihan Cipher -->
+  <div class="box">
+    <h2>Pilih Jenis Cipher</h2>
+    <select id="cipherSelect" onchange="showCipherForm()">
+      <option value="">-- Pilih Cipher --</option>
+      <option value="standard">Vigenere Cipher (Standar)</option>
+      <option value="auto">Auto-Key Vigenere Cipher</option>
+      <option value="extended">Extended Vigenere Cipher</option>
+    </select>
+  </div>
+
+  <!-- Form Dinamis -->
+  <div id="cipherForm" class="box" style="display:none;">
+    <h2 id="cipherTitle"></h2>
+    <label for="plaintext">Plaintext / Ciphertext:</label>
+    <textarea id="plaintext" rows="2"></textarea>
+
+    <label for="key">Key:</label>
+    <input type="text" id="key">
+
+    <div class="btn-group">
+      <button onclick="handleEncrypt()">Encrypt</button>
+      <button onclick="handleDecrypt()">Decrypt</button>
+      <button class="clear" onclick="clearAll()">Clear</button>
+    </div>
+
+    <div class="output" id="output"></div>
+  </div>
+
+  <script src="Fungsi.js"></script>
+</body>
+</html>
