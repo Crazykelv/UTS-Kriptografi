@@ -1,44 +1,108 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vigenere Cipher Tools</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🛡️ UTS Kriptografi 2025 – Cipher Lab</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>🔐 Vigenere Cipher Tools</h1>
+  <header class="app-header">
+    <h1>🛡️ UTS Kriptografi 2025 – Cipher Lab</h1>
+    <p class="subtitle">Vigenere • Auto‑Key • Extended • Playfair • Affine • Hill • Super (Extended + Transposisi) • Bonus: Enigma</p>
+  </header>
 
-  <!-- Pilihan Cipher -->
-  <div class="box">
-    <h2>Pilih Jenis Cipher</h2>
-    <select id="cipherSelect" onchange="showCipherForm()">
-      <option value="">-- Pilih Cipher --</option>
-      <option value="standard">Vigenere Cipher (Standar)</option>
-      <option value="auto">Auto-Key Vigenere Cipher</option>
-      <option value="extended">Extended Vigenere Cipher</option>
-      <option value="playfair">Playfair Cipher</option>
-      <option value="affine">Affine Cipher</option>
-    </select>
-  </div>
+  <main class="container">
+    <!-- Panel Kiri: Konfigurasi -->
+    <section class="panel panel-left">
+      <div class="box">
+        <label for="cipherSelect" class="label">Pilih Cipher</label>
+        <select id="cipherSelect" class="input" onchange="UI.showCipherForm()">
+          <option value="">— Pilih —</option>
+          <option value="standard">Vigenere (Standar, 26 huruf)</option>
+          <option value="auto">Auto-Key Vigenere (26 huruf)</option>
+          <option value="extended">Extended Vigenere (ASCII)</option>
+          <option value="playfair">Playfair (26 huruf)</option>
+          <option value="affine">Affine (26 huruf)</option>
+          <option value="hill">Hill (26 huruf, 2x2)</option>
+          <option value="super">Super: Extended Vigenere + Transposisi Kolom</option>
+          <option value="enigma">Bonus: Enigma (I-II-III, Reflector B)</option>
+        </select>
+      </div>
 
-  <!-- Form Dinamis -->
-  <div id="cipherForm" class="box" style="display:none;">
-    <h2 id="cipherTitle"></h2>
-    <label for="plaintext">Plaintext / Ciphertext:</label>
-    <textarea id="plaintext" rows="2"></textarea>
+      <div id="formDynamic" class="box" style="display:none;">
+        <h2 id="cipherTitle" class="title"></h2>
 
-    <label for="key">Key:</label>
-    <input type="text" id="key">
+        <div class="tabs">
+          <button class="tab active" data-target="#tab-text" onclick="UI.switchTab(event)">📝 Teks</button>
+          <button class="tab" data-target="#tab-file" onclick="UI.switchTab(event)">📦 File</button>
+        </div>
 
-    <div class="btn-group">
-      <button onclick="handleEncrypt()">Encrypt</button>
-      <button onclick="handleDecrypt()">Decrypt</button>
-      <button class="clear" onclick="clearAll()">Clear</button>
-    </div>
+        <!-- TAB TEKS -->
+        <div id="tab-text" class="tab-pane active">
+          <label class="label" for="plaintext">Plaintext / Ciphertext</label>
+          <textarea id="plaintext" rows="4" class="input" placeholder="Masukkan teks di sini..."></textarea>
 
-    <div class="output" id="output"></div>
-  </div>
+          <div id="keyArea" class="grid"></div>
+
+          <div class="btn-group">
+            <button class="btn" onclick="App.encryptText()">Encrypt</button>
+            <button class="btn outline" onclick="App.decryptText()">Decrypt</button>
+            <button class="btn danger" onclick="UI.clearText()">Clear</button>
+          </div>
+        </div>
+
+        <!-- TAB FILE -->
+        <div id="tab-file" class="tab-pane">
+          <div class="notice">
+            <strong>Catatan:</strong> Enkripsi file <em>disarankan</em> memakai <b>Extended Vigenere</b> atau <b>Super</b>. 
+            Cipher 26 huruf akan memproses konten sebagai teks (hanya A‑Z), sehingga hasil untuk file biner biasanya tidak valid dibuka aplikasi aslinya.
+          </div>
+
+          <label class="label" for="fileInput">Pilih File</label>
+          <input id="fileInput" class="input" type="file" />
+
+          <div id="keyAreaFile" class="grid"></div>
+
+          <div class="btn-group">
+            <button class="btn" onclick="App.encryptFile()">Encrypt File</button>
+            <button class="btn outline" onclick="App.decryptFile()">Decrypt File</button>
+            <button class="btn danger" onclick="UI.clearFile()">Clear</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Panel Kanan: Output -->
+    <section class="panel panel-right">
+      <div class="box">
+        <h2 class="title">📤 Hasil</h2>
+        <div id="resultMeta" class="meta"></div>
+        <div id="resultRaw" class="output"></div>
+        <div id="resultBase64" class="output"></div>
+
+        <div class="btn-group end">
+          <button class="btn small" onclick="UI.copyRaw()">Copy Raw</button>
+          <button class="btn small" onclick="UI.copyB64()">Copy Base64</button>
+          <button class="btn small" onclick="UI.download()">Download</button>
+        </div>
+      </div>
+
+      <div class="box">
+        <h2 class="title">ℹ️ Petunjuk Penting</h2>
+        <ul class="bullets">
+          <li>Untuk cipher 26 huruf: input diproses huruf A‑Z saja (angka/spasi/tanda baca diabaikan).</li>
+          <li>Semua tampilan hasil juga tersedia dalam <b>Base64</b> (tanpa spasi).</li>
+          <li>File terenkripsi (Extended/Super) akan <em>tidak dapat dibuka</em> sampai didekripsi kembali.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <small>© 2025 - Cipher Lab • Dibuat untuk UTS Kriptografi</small>
+  </footer>
 
   <script src="Fungsi.js"></script>
 </body>
