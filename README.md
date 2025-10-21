@@ -1,4 +1,8 @@
 # UTS-Kriptografi
+## Anggota :
+- Riskyta 227006050 <br>
+- Fahri Aminuddin Abdillah 227006051 <br>
+- Faiq Pataya Zain 227006052 <br>
 Program ini merupakan aplikasi web interaktif untuk mengerjakan seluruh soal UTS mata kuliah
 Kriptografi tahun 2025. Aplikasi ini dibuat dengan menggunakan HTML, CSS, dan JavaScript
 murni tanpa framework tambahan. Tugas ini mencakup semua algoritma cipher klasik dan modern
@@ -38,7 +42,3 @@ sampai didekripsi kembali. <br>
 ## Penutup
 Aplikasi ini dibuat untuk memenuhi dan menyelesaikan seluruh poin soal UTS Kriptografi 2025.
 Semua algoritma diuji bekerja dua arah (enkripsi dan dekripsi) serta kompatibel untuk teks dan file <br>
-## Anggota :
-- Riskyta 227006050 <br>
-- Fahri Aminuddin Abdillah 227006051 <br>
-- Faiq Pataya Zain 227006052 <br>
