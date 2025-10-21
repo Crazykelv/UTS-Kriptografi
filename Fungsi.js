@@ -152,7 +152,7 @@ const UI = {
     if (rawText !== undefined){
       UI.lastRawText = rawText;
       rawBox.textContent = "RAW: " + rawText;
-      const b64 = Utils.toB64(rawText).replace(/\s+/g,'').toLowerCase();
+      const b64 = Utils.toB64(rawText).replace(/\s+/g,'');
       UI.lastB64 = b64;
       b64Box.textContent = "BASE64: " + b64;
       UI.lastBytes = new TextEncoder().encode(rawText);
@@ -366,43 +366,75 @@ const Classical = {
 const Extended = {
   vigenereBytes(bytes, keyBytes, dec=false){
     const out = new Uint8Array(bytes.length);
+    const klen = keyBytes.length;
+    if (!klen) throw new Error("Key wajib diisi.");
     for (let i=0;i<bytes.length;i++){
-      const p = bytes[i], k = keyBytes[i % keyBytes.length];
+      const p = bytes[i], k = keyBytes[i % klen];
       out[i] = dec ? ((p - k + 256) % 256) : ((p + k) % 256);
     }
     return out;
   },
 
-  // Columnar transposition on bytes using key (sort by charCode, stable with index)
+  // ---- Columnar Transposition (NO PADDING, fully reversible for binary) ----
+  _permFromKey(key){
+    // stable sort by charCode, keep original positions for ties
+    return [...key].map((c,i)=>({c,i}))
+      .sort((a,b)=> a.c.charCodeAt(0) - b.c.charCodeAt(0) || a.i - b.i)
+      .map(o=>o.i);
+  },
+
   columnarEncrypt(bytes, key){
     const n = key.length;
-    const rows = Math.ceil(bytes.length / n);
-    const grid = Array.from({length: rows}, ()=> new Array(n).fill(32)); // pad with space (32)
-    let idx=0;
-    for (let r=0;r<rows;r++)
-      for (let c=0;c<n;c++)
-        if (idx<bytes.length) grid[r][c]=bytes[idx++];
-    const perm = [...key].map((c,i)=>({c, i})).sort((a,b)=> a.c.charCodeAt(0)-b.c.charCodeAt(0));
-    const out = [];
-    for (const k of perm) for (let r=0;r<rows;r++) out.push(grid[r][k.i]);
-    return new Uint8Array(out);
-  },
-  columnarDecrypt(bytes, key){
-    const n = key.length;
-    const rows = Math.ceil(bytes.length / n);
-    const perm = [...key].map((c,i)=>({c,i})).sort((a,b)=> a.c.charCodeAt(0)-b.c.charCodeAt(0));
-    const grid = Array.from({length: rows}, ()=> new Array(n).fill(0));
-    let idx=0;
-    for (const k of perm){
-      for (let r=0;r<rows;r++){
-        if (idx<bytes.length) grid[r][k.i] = bytes[idx++];
+    if (n <= 0) throw new Error("Key wajib diisi.");
+    const order = this._permFromKey(key);         // columns read order
+    const rows  = Math.ceil(bytes.length / n);
+    const out   = new Uint8Array(bytes.length);
+    let k = 0;
+    // Read column-wise in permuted order; do NOT pad
+    for (const col of order){
+      for (let r=0; r<rows; r++){
+        const pos = r*n + col;
+        if (pos < bytes.length) out[k++] = bytes[pos];
       }
     }
-    const out=[];
-    for (let r=0;r<rows;r++) for (let c=0;c<n;c++) out.push(grid[r][c]);
-    return new Uint8Array(out);
+    return out;
+  },
+
+  columnarDecrypt(bytes, key){
+    const n = key.length;
+    if (n <= 0) throw new Error("Key wajib diisi.");
+    const order = this._permFromKey(key);
+    const L     = bytes.length;
+    const rows  = Math.ceil(L / n);
+    const rem   = L % n;
+
+    // Compute column lengths for original columns (no padding)
+    const colLens = new Array(n).fill(rows);
+    if (rem !== 0){
+      for (let c=rem; c<n; c++) colLens[c] = rows - 1;
+    }
+
+    // Slice ciphertext into columns following permuted order
+    const cols = new Array(n);
+    let idx = 0;
+    for (const col of order){
+      const len = colLens[col];
+      cols[col] = bytes.slice(idx, idx + len);
+      idx += len;
+    }
+
+    // Reconstruct by reading row-wise across columns
+    const out = new Uint8Array(L);
+    let k = 0;
+    for (let r=0; r<rows; r++){
+      for (let c=0; c<n; c++){
+        const colArr = cols[c];
+        if (r < colArr.length) out[k++] = colArr[r];
+      }
+    }
+    return out;
   }
-};
+};;
 
 /** BONUS – Minimal Enigma (I-II-III, Reflector B, no plugboard, ring=01) */
 const Enigma = (()=>{
