@@ -143,7 +143,7 @@ const UI = {
     document.getElementById('resultRaw').textContent = "";
     document.getElementById('resultBase64').textContent = "";
   },
-  setOutput({rawText, bytes, meta}){
+  setOutput({rawText, bytes, meta, decodeBytes = true}){
     const metaBox = document.getElementById('resultMeta');
     const rawBox  = document.getElementById('resultRaw');
     const b64Box  = document.getElementById('resultBase64');
@@ -159,9 +159,14 @@ const UI = {
     }
     if (bytes instanceof Uint8Array){
       UI.lastBytes = bytes;
-      const decoded = Utils.fromBytes(bytes);
-      UI.lastRawText = decoded;
-      rawBox.textContent = "RAW: " + decoded;
+      if (decodeBytes){
+        const decoded = Utils.fromBytes(bytes);
+        UI.lastRawText = decoded;
+        rawBox.textContent = "RAW: " + decoded;
+      } else {
+        UI.lastRawText = "[" + Array.from(bytes).join(',') + "]";
+        rawBox.textContent = "BYTE: " + UI.lastRawText;
+      }
       const b64 = Utils.toB64(bytes).replace(/\s+/g,'');
       UI.lastB64 = b64;
       b64Box.textContent = "BASE64: " + b64;
@@ -507,7 +512,7 @@ const App = {
           // step2 transposisi kolom (bytes)
           const trans = Extended.columnarEncrypt(vig, key);
           UI.lastFilename = "super_cipher.dat";
-          UI.setOutput({bytes: trans, meta:"Super (ENCRYPT) Extended+Transposisi"});
+          UI.setOutput({bytes: trans, meta:"Super (ENCRYPT) Extended+Transposisi", decodeBytes: false});
           return;
         }
         case "enigma":{
@@ -602,7 +607,7 @@ const App = {
         if (!key) throw new Error("Key wajib diisi.");
         const step1 = Extended.vigenereBytes(buf, Utils.toBytes(key), false);
         const res = (mode==="super") ? Extended.columnarEncrypt(step1, key) : step1;
-        UI.setOutput({bytes: res, meta: (mode==="super" ? "Super (ENCRYPT) file" : "Extended (ENCRYPT) file")});
+        UI.setOutput({bytes: res, meta: (mode==="super" ? "Super (ENCRYPT) file" : "Extended (ENCRYPT) file"), decodeBytes: mode==="super" ? false : true});
       } else {
         // treat as text (A-Z only) – not recommended for binary
         const asText = new TextDecoder().decode(buf);
