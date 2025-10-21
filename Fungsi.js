@@ -152,7 +152,7 @@ const UI = {
     if (rawText !== undefined){
       UI.lastRawText = rawText;
       rawBox.textContent = "RAW: " + rawText;
-      const b64 = Utils.toB64(rawText).replace(/\s+/g,'');
+      const b64 = Utils.toB64(rawText).replace(/\s+/g,'').toLowerCase();
       UI.lastB64 = b64;
       b64Box.textContent = "BASE64: " + b64;
       UI.lastBytes = new TextEncoder().encode(rawText);
