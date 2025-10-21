@@ -30,8 +30,18 @@ h1{margin:0 0 6px;font-size:28px;letter-spacing:.3px}
   grid-template-columns: 1.1fr .9fr;
   gap:18px;
 }
+.panel{}
 .panel-left .box{margin-bottom:14px}
 .panel-right .box{margin-bottom:14px}
+
+/* Keep first result box sticky on desktop for easier viewing */
+@media (min-width: 981px){
+  .panel-right .box:first-child{
+    position: sticky;
+    top: 12px;
+    z-index: 1;
+  }
+}
 
 .box{
   background:linear-gradient(180deg, var(--panel), var(--box));
@@ -50,6 +60,7 @@ h1{margin:0 0 6px;font-size:28px;letter-spacing:.3px}
   border-radius:12px;
   padding:10px 12px;
   outline:none;
+  transition: border-color .2s ease, box-shadow .2s ease;
 }
 .input:focus, textarea:focus, select:focus{border-color:#2c4e77;box-shadow:0 0 0 3px rgba(142,197,255,.15)}
 
@@ -65,21 +76,51 @@ h1{margin:0 0 6px;font-size:28px;letter-spacing:.3px}
   padding:10px 14px;
   font-weight:700;
   cursor:pointer;
+  transition: transform .12s ease, box-shadow .2s ease, filter .2s ease, opacity .2s ease;
+  box-shadow:0 2px 0 rgba(0,0,0,.25);
+  will-change: transform;
 }
-.btn:hover{filter:brightness(1.03)}
-.btn.outline{background:transparent;color:#cfe3ff;border:1px solid var(--border)}
-.btn.danger{background:linear-gradient(180deg, #ff9b9b, var(--danger));color:#240000}
+.btn:hover{
+  transform: translateY(-1px);
+  box-shadow:0 6px 16px rgba(0,0,0,.25);
+  filter:brightness(1.03);
+}
+.btn:active{
+  transform: translateY(0);
+  box-shadow:0 2px 0 rgba(0,0,0,.25);
+  filter:brightness(.97);
+}
+.btn.outline{
+  background:transparent;
+  color:#cfe3ff;
+  border:1px solid var(--border);
+}
+.btn.outline:hover{border-color:#3d5f8e}
+.btn.danger{
+  background:linear-gradient(180deg, #ff9b9b, var(--danger));
+  color:#240000;
+}
 .btn.small{padding:8px 10px;border-radius:10px;font-weight:600}
 .btn.disabled{opacity:.6;pointer-events:none}
 
 .tabs{display:flex;gap:8px;margin:6px 0 10px}
-.tab{background:#0f1722;color:#bcd3ef;border:1px solid var(--border);border-radius:10px;padding:8px 10px;cursor:pointer}
+.tab{
+  background:#0f1722;
+  color:#bcd3ef;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:8px 10px;
+  cursor:pointer;
+  transition: transform .12s ease, box-shadow .2s ease, filter .2s ease;
+}
+.tab:hover{transform:translateY(-1px)}
 .tab.active{background:#18304b;border-color:#355783;color:#fff}
 .tab-pane{display:none}
 .tab-pane.active{display:block}
 
 .notice{background:#102235;border:1px dashed #2c4e77;border-radius:12px;padding:10px;color:#cfe3ff;margin:6px 0 12px}
 
+/* Output boxes */
 .output{
   white-space:pre-wrap;
   word-break:break-word;
@@ -91,6 +132,30 @@ h1{margin:0 0 6px;font-size:28px;letter-spacing:.3px}
   font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
   margin:8px 0;
 }
+
+/* Make BASE64 box fixed-size with internal scroll */
+#resultBase64{
+  max-height: 260px;     /* keep it from growing the page */
+  overflow:auto;          /* scroll inside the box */
+  overscroll-behavior: contain;
+  border-color:#2a3e5c;
+}
+/* optional: keep RAW box compact too */
+#resultRaw{max-height: 160px; overflow:auto;}
+
+/* Nice custom scrollbar (WebKit/Chromium) */
+#resultBase64::-webkit-scrollbar, #resultRaw::-webkit-scrollbar{
+  width:10px;
+}
+#resultBase64::-webkit-scrollbar-thumb, #resultRaw::-webkit-scrollbar-thumb{
+  background:#274261;
+  border-radius:10px;
+}
+#resultBase64::-webkit-scrollbar-track, #resultRaw::-webkit-scrollbar-track{
+  background:#0b1524;
+  border-radius:10px;
+}
+
 .meta{color:var(--muted);font-size:.95em;margin-bottom:6px}
 .bullets{margin:6px 0 0 18px}
 .bullets li{margin:6px 0}
@@ -99,4 +164,6 @@ h1{margin:0 0 6px;font-size:28px;letter-spacing:.3px}
 .end{justify-content:flex-end}
 @media (max-width: 980px){
   .container{grid-template-columns: 1fr}
+  /* disable sticky on mobile for better flow */
+  .panel-right .box:first-child{position: static;}
 }
