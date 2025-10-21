@@ -159,9 +159,11 @@ const UI = {
     }
     if (bytes instanceof Uint8Array){
       UI.lastBytes = bytes;
+      const decoded = Utils.fromBytes(bytes);
+      UI.lastRawText = decoded;
+      rawBox.textContent = "RAW: " + decoded;
       const b64 = Utils.toB64(bytes).replace(/\s+/g,'');
       UI.lastB64 = b64;
-      rawBox.textContent = "BYTES: ["+ bytes.length +" byte]";
       b64Box.textContent = "BASE64: " + b64;
     }
   },
